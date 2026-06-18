@@ -7,6 +7,18 @@ type MetalsResponse = {
   price?: number;
 };
 
+type FrankfurterV1Response = {
+  rates?: {
+    ILS?: number;
+  };
+};
+
+type FrankfurterV2Rate = {
+  base?: string;
+  quote?: string;
+  rate?: number;
+};
+
 function readSilverSpotUsd(data: MetalsResponse): number {
   const value =
     data.metals?.silver ??
@@ -42,14 +54,21 @@ async function fetchSilverSpotUsd(): Promise<number> {
 }
 
 async function fetchUsdIlsRate(): Promise<number> {
-  const response = await fetch("https://api.frankfurter.dev/v2/latest?base=USD&symbols=ILS");
+  const response = await fetch("https://api.frankfurter.dev/v2/rates?base=USD&quotes=ILS");
 
   if (!response.ok) {
     throw new Error(`Frankfurter API returned ${response.status}`);
   }
 
-  const data = (await response.json()) as { rates?: { ILS?: number } };
-  const value = data.rates?.ILS;
+  const data = (await response.json()) as unknown;
+
+  return readUsdIlsRate(data);
+}
+
+export function readUsdIlsRate(data: unknown): number {
+  const value = Array.isArray(data)
+    ? (data as FrankfurterV2Rate[]).find((rate) => rate.base === "USD" && rate.quote === "ILS")?.rate
+    : (data as FrankfurterV1Response).rates?.ILS;
 
   if (typeof value !== "number" || !Number.isFinite(value)) {
     throw new Error("Frankfurter response did not include USD/ILS");
