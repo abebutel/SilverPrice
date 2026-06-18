@@ -12,7 +12,121 @@ body {
   margin: 0;
 }
 
+button,
+input {
+  font: inherit;
+}
+
 .app-shell {
+  display: grid;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: 760px;
   min-height: 100vh;
-  padding: 24px;
+  padding: 22px;
+}
+
+.summary h1 {
+  font-size: 38px;
+  line-height: 1;
+  margin: 0 0 8px;
+}
+
+.eyebrow,
+.timestamp,
+small,
+span {
+  color: #5a6468;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0 0 8px;
+  text-transform: uppercase;
+}
+
+.timestamp {
+  margin: 0;
+}
+
+.metrics,
+.result {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+article,
+.controls,
+.manual {
+  background: #ffffff;
+  border: 1px solid #d7d2c9;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+article {
+  display: grid;
+  gap: 6px;
+}
+
+strong {
+  color: #101820;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.controls,
+.manual {
+  display: grid;
+  gap: 12px;
+}
+
+.button-row {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+button {
+  background: #e9ece6;
+  border: 1px solid #c8cec4;
+  border-radius: 8px;
+  color: #172026;
+  min-height: 44px;
+}
+
+button.active {
+  background: #101820;
+  color: #ffffff;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  font-weight: 700;
+}
+
+input {
+  border: 1px solid #bcc3bf;
+  border-radius: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  width: 100%;
+}
+
+.manual {
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+@media (max-width: 420px) {
+  .app-shell {
+    padding: 18px;
+  }
+
+  .button-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
