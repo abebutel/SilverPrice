@@ -27,8 +27,8 @@ export default function App() {
       .then((livePricing) => {
         setPricing(livePricing);
         savePricing(livePricing);
-        setManualSilver(String(livePricing.silverSpotUsd));
-        setManualRate(String(livePricing.usdIlsRate));
+        setManualSilver(formatMoney(livePricing.silverSpotUsd));
+        setManualRate(formatMoney(livePricing.usdIlsRate));
         setStatus("Live prices");
       })
       .catch(() => {
@@ -36,8 +36,8 @@ export default function App() {
 
         if (savedPricing) {
           setPricing(savedPricing);
-          setManualSilver(String(savedPricing.silverSpotUsd));
-          setManualRate(String(savedPricing.usdIlsRate));
+          setManualSilver(formatMoney(savedPricing.silverSpotUsd));
+          setManualRate(formatMoney(savedPricing.usdIlsRate));
           setStatus("Using saved prices");
           return;
         }
@@ -87,8 +87,8 @@ export default function App() {
           <small>exchange rate</small>
         </article>
         <article>
-          <span>Silver kg</span>
-          <strong>{calculated ? `$${formatMoney(calculated.usdPerKg)}` : "--"}</strong>
+          <span>Silver g</span>
+          <strong>{calculated ? `$${formatMoney(calculated.usdPerGramBeforeMarkup)}` : "--"}</strong>
           <small>USD</small>
         </article>
       </section>
@@ -117,27 +117,6 @@ export default function App() {
         />
       </section>
 
-      <section className="manual" aria-label="Manual pricing">
-        <label>
-          Silver spot USD
-          <input
-            inputMode="decimal"
-            onChange={(event) => setManualSilver(event.target.value)}
-            type="number"
-            value={manualSilver}
-          />
-        </label>
-        <label>
-          USD/ILS rate
-          <input
-            inputMode="decimal"
-            onChange={(event) => setManualRate(event.target.value)}
-            type="number"
-            value={manualRate}
-          />
-        </label>
-      </section>
-
       <section className="result" aria-label="Calculated prices">
         <article>
           <span>Price per gram</span>
@@ -149,6 +128,29 @@ export default function App() {
           <strong>{calculated ? `NIS ${formatMoney(calculated.nisPerGram)}` : "--"}</strong>
           <small>NIS</small>
         </article>
+      </section>
+
+      <section className="manual" aria-label="Manual pricing">
+        <label>
+          Silver spot USD
+          <input
+            inputMode="decimal"
+            onChange={(event) => setManualSilver(event.target.value)}
+            step="0.01"
+            type="number"
+            value={manualSilver}
+          />
+        </label>
+        <label>
+          USD/ILS rate
+          <input
+            inputMode="decimal"
+            onChange={(event) => setManualRate(event.target.value)}
+            step="0.01"
+            type="number"
+            value={manualRate}
+          />
+        </label>
       </section>
     </main>
   );

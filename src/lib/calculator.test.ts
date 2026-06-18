@@ -10,6 +10,7 @@ describe("calculateSilverPrices", () => {
     });
 
     expect(result.usdPerKg).toBe(964.5);
+    expect(result.usdPerGramBeforeMarkup).toBe(0.96);
     expect(result.usdPerGram).toBe(1.06);
     expect(result.nisPerGram).toBe(3.93);
   });

@@ -6,6 +6,7 @@ export type SilverCalculationInput = {
 
 export type SilverCalculationResult = {
   usdPerKg: number;
+  usdPerGramBeforeMarkup: number;
   usdPerGram: number;
   nisPerGram: number;
 };
@@ -18,11 +19,13 @@ export function roundToTwoDecimals(value: number): number {
 
 export function calculateSilverPrices(input: SilverCalculationInput): SilverCalculationResult {
   const usdPerKg = input.silverSpotUsd * TROY_OUNCES_PER_KG;
+  const usdPerGramBeforeMarkup = usdPerKg / 1000;
   const usdPerGram = (usdPerKg * (1 + input.markupPercent / 100)) / 1000;
   const nisPerGram = usdPerGram * input.usdIlsRate;
 
   return {
     usdPerKg: roundToTwoDecimals(usdPerKg),
+    usdPerGramBeforeMarkup: roundToTwoDecimals(usdPerGramBeforeMarkup),
     usdPerGram: roundToTwoDecimals(usdPerGram),
     nisPerGram: roundToTwoDecimals(nisPerGram),
   };
