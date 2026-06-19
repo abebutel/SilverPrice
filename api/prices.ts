@@ -1,12 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
-type MetalsResponse = {
-  rates?: Record<string, number>;
-  metals?: Record<string, number>;
-  silver?: number;
-  price?: number;
-};
-
 type FrankfurterV1Response = {
   rates?: {
     ILS?: number;
@@ -19,38 +12,64 @@ type FrankfurterV2Rate = {
   rate?: number;
 };
 
-function readSilverSpotUsd(data: MetalsResponse): number {
-  const value =
-    data.metals?.silver ??
-    data.metals?.Silver ??
-    data.rates?.XAG ??
-    data.rates?.silver ??
-    data.silver ??
-    data.price;
+type CachedSilverSpot = {
+  price: number;
+  updatedAt: string;
+  expiresAt: number;
+};
 
-  if (typeof value !== "number" || !Number.isFinite(value)) {
-    throw new Error("Metals API response did not include a silver price");
+const BULLIONVAULT_SILVER_CSV_URL = "https://chart-data.bullionvault.com/prices/CSV/AGX/USD/120/Full";
+const SILVER_SPOT_CACHE_MS = 5 * 60 * 1000;
+
+let cachedSilverSpot: CachedSilverSpot | null = null;
+
+export function readBullionVaultSilverSpotUsd(csv: string): number {
+  const latestDataLine = csv
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find((line) => line.startsWith('"') && !line.startsWith('"Date"'));
+
+  if (!latestDataLine) {
+    throw new Error("BullionVault CSV did not include a silver price row");
+  }
+
+  const columns = latestDataLine.split(",");
+  const value = Number(columns[7]);
+
+  if (!Number.isFinite(value)) {
+    throw new Error("BullionVault CSV did not include a valid troy-ounce close price");
   }
 
   return value;
 }
 
-async function fetchSilverSpotUsd(): Promise<number> {
-  const apiKey = process.env.METALS_API_KEY;
+export function resetPricingCacheForTest(): void {
+  cachedSilverSpot = null;
+}
 
-  if (!apiKey) {
-    throw new Error("METALS_API_KEY is not configured");
+export async function fetchSilverSpotUsd(): Promise<number> {
+  const now = Date.now();
+
+  if (cachedSilverSpot && cachedSilverSpot.expiresAt > now) {
+    return cachedSilverSpot.price;
   }
 
-  const response = await fetch(`https://api.metals.dev/v1/latest?api_key=${apiKey}&currency=USD&unit=toz`);
+  const response = await fetch(BULLIONVAULT_SILVER_CSV_URL);
 
   if (!response.ok) {
-    throw new Error(`Metals API returned ${response.status}`);
+    throw new Error(`BullionVault chart CSV returned ${response.status}`);
   }
 
-  const data = (await response.json()) as MetalsResponse;
+  const csv = await response.text();
+  const price = readBullionVaultSilverSpotUsd(csv);
 
-  return readSilverSpotUsd(data);
+  cachedSilverSpot = {
+    price,
+    updatedAt: new Date().toISOString(),
+    expiresAt: now + SILVER_SPOT_CACHE_MS,
+  };
+
+  return price;
 }
 
 async function fetchUsdIlsRate(): Promise<number> {
@@ -84,7 +103,7 @@ export default async function handler(_request: VercelRequest, response: VercelR
     response.status(200).json({
       silverSpotUsd,
       usdIlsRate,
-      updatedAt: new Date().toISOString(),
+      updatedAt: cachedSilverSpot?.updatedAt ?? new Date().toISOString(),
     });
   } catch (error) {
     response.status(502).json({

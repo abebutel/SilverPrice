@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { BullionVaultChart } from "./BullionVaultChart";
 import { calculateSilverPrices, formatMoney } from "./lib/calculator";
 import { fetchLivePricing } from "./lib/pricingClient";
 import { loadSavedPricing, savePricing } from "./lib/storage";
@@ -76,10 +77,13 @@ export default function App() {
       </section>
 
       <section className="metrics" aria-label="Current rates">
-        <article>
+        <article aria-label="Silver spot price">
           <span>Silver spot</span>
           <strong>{activePricing ? `$${formatMoney(activePricing.silverSpotUsd)}` : "--"}</strong>
           <small>per troy ounce</small>
+          {activePricing ? (
+            <small className="metric-time">Updated {new Date(activePricing.updatedAt).toLocaleString()}</small>
+          ) : null}
         </article>
         <article>
           <span>USD/ILS</span>
@@ -92,6 +96,8 @@ export default function App() {
           <small>USD</small>
         </article>
       </section>
+
+      <BullionVaultChart />
 
       <section className="controls" aria-label="Markup controls">
         <label htmlFor="markup">Markup percentage</label>

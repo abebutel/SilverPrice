@@ -57,4 +57,43 @@ describe("App", () => {
 
     expect(calculatedPrices.compareDocumentPosition(manualPricing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
+
+  it("shows the update date and time in the silver spot card", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            silverSpotUsd: 64.1,
+            usdIlsRate: 3.42,
+            updatedAt: "2026-06-19T06:27:30.000Z",
+          }),
+      }),
+    );
+
+    render(<App />);
+
+    const silverSpot = await screen.findByLabelText("Silver spot price");
+
+    expect(silverSpot.textContent).toContain("Updated");
+    expect(silverSpot.textContent).toContain(new Date("2026-06-19T06:27:30.000Z").toLocaleString());
+  });
+
+  it("renders the BullionVault silver chart area", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+      }),
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Enter prices manually")).toBeTruthy();
+    });
+
+    expect(screen.getByLabelText("BullionVault silver chart")).toBeTruthy();
+  });
 });

@@ -6,6 +6,7 @@ A phone-friendly silver price calculator that shows:
 - USD/ILS exchange rate
 - silver price per kg in USD
 - marked-up price per gram in USD and NIS
+- an embedded BullionVault silver chart
 
 ## Setup
 
@@ -15,27 +16,20 @@ Install dependencies:
 npm install
 ```
 
-Create `.env.local`:
-
-```text
-METALS_API_KEY=your_key_here
-```
-
 Run locally:
 
 ```bash
 npm run dev
 ```
 
-## API Key
+## Data Sources
 
-Create a free Metals.Dev account and copy your API key. Add it to `.env.local` for local development and to Vercel as `METALS_API_KEY` for production.
+Silver spot pricing uses BullionVault's chart CSV feed through the server route. The server caches the silver spot value for five minutes.
 
-USD/ILS exchange rates use Frankfurter and do not require an API key.
+USD/ILS exchange rates use Frankfurter. No API key is required.
 
 ## Deploy
 
 1. Push this repository to GitHub.
 2. Import the repository in Vercel.
-3. Add the `METALS_API_KEY` environment variable in Vercel.
-4. Deploy.
+3. Deploy.
