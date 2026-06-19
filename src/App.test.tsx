@@ -32,7 +32,7 @@ describe("App", () => {
     await user.type(screen.getByLabelText("USD/ILS rate"), "3.7");
     await user.click(screen.getByRole("button", { name: "10%" }));
 
-    expect(screen.getByText("Silver g")).toBeTruthy();
+    expect(screen.getByLabelText("Price per gram before markup")).toBeTruthy();
     expect(screen.getByText("$0.96")).toBeTruthy();
     expect(screen.getByText("$1.06")).toBeTruthy();
     expect(screen.getByText("NIS 3.93")).toBeTruthy();
@@ -56,6 +56,28 @@ describe("App", () => {
     const manualPricing = screen.getByLabelText("Manual pricing");
 
     expect(calculatedPrices.compareDocumentPosition(manualPricing) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("shows the USD/ILS card between the calculated per-gram cards", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+      }),
+    );
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Enter prices manually")).toBeTruthy();
+    });
+
+    const usdPerGram = screen.getByLabelText("Price per gram USD");
+    const exchangeRate = screen.getByLabelText("USD/ILS exchange rate");
+    const nisPerGram = screen.getByLabelText("Price per gram NIS");
+
+    expect(usdPerGram.compareDocumentPosition(exchangeRate) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(exchangeRate.compareDocumentPosition(nisPerGram) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("shows the update date and time in the silver spot card", async () => {

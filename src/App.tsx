@@ -85,13 +85,8 @@ export default function App() {
             <small className="metric-time">Updated {new Date(activePricing.updatedAt).toLocaleString()}</small>
           ) : null}
         </article>
-        <article>
-          <span>USD/ILS</span>
-          <strong>{activePricing ? formatMoney(activePricing.usdIlsRate) : "--"}</strong>
-          <small>exchange rate</small>
-        </article>
-        <article>
-          <span>Silver g</span>
+        <article aria-label="Price per gram before markup">
+          <span>Price per gram</span>
           <strong>{calculated ? `$${formatMoney(calculated.usdPerGramBeforeMarkup)}` : "--"}</strong>
           <small>USD</small>
         </article>
@@ -124,12 +119,17 @@ export default function App() {
       </section>
 
       <section className="result" aria-label="Calculated prices">
-        <article>
+        <article aria-label="Price per gram USD">
           <span>Price per gram</span>
           <strong>{calculated ? `$${formatMoney(calculated.usdPerGram)}` : "--"}</strong>
           <small>USD</small>
         </article>
-        <article>
+        <article aria-label="USD/ILS exchange rate">
+          <span>USD/ILS</span>
+          <strong>{activePricing ? formatMoney(activePricing.usdIlsRate) : "--"}</strong>
+          <small>exchange rate</small>
+        </article>
+        <article aria-label="Price per gram NIS">
           <span>Price per gram</span>
           <strong>{calculated ? `NIS ${formatMoney(calculated.nisPerGram)}` : "--"}</strong>
           <small>NIS</small>
